@@ -1,4 +1,4 @@
-# Single-Stage Training Document Generator
+# AI Training Document Generator
 
 ## Problem Addressed:
 Senior staff spend excessive time onboarding new hires; video recordings are inefficient for knowledge transfer
@@ -63,14 +63,14 @@ This application generates comprehensive training documents from one training se
 
 2. Open your browser and go to:
    ```
-   http://127.0.0.1:5000
+    http://127.0.0.1:8080
    ```
 
 3. Upload a training video and follow the on-screen instructions
 
 ## Project Structure
 
-- `single_stage_app.py`: Main Flask application
+- `single_stage_app.py`: Main Flask application (It is called single stage because the current V1 only calls API once. Development is undergoing for improving output quality with multiple chained API call)
 - `ai_service.py`: Handles API calls to Gemini
 - `prompts_OneStage.py`: Contains the prompt used for Gemini API
 - `templates/`: HTML templates for the web interface

@@ -1,0 +1,35 @@
+# Environment variables
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+
+# Logs
+*.log
+logs/
+
+# Mac OS
+.DS_Store
+
+# Output files
+output/
+uploads/
+screenshots/
+
+# Video files
+KT Recording/
+*.mp4
+
+# Large files
+sample result.docx
+*.docx
+
+# IDE files
+.idea/
+.vscode/
+
+# Jupyter Notebook
+.ipynb_checkpoints 

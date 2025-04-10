@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Results - Training Document Generator{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Processing Complete</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="my-4">
+                    <div class="alert alert-success" role="alert">
+                        <h4 class="alert-heading">Success!</h4>
+                        <p>Your training document has been successfully generated.</p>
+                    </div>
+                    
+                    <div class="d-grid gap-3 col-md-8 mx-auto">
+                        <a href="{{ url_for('download_pdf', job_id=job_id) }}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-file-earmark-pdf"></i> Download PDF Document
+                        </a>
+                        
+                        {% if include_json %}
+                        <a href="{{ url_for('download_json', job_id=job_id) }}" class="btn btn-secondary btn-lg">
+                            <i class="bi bi-file-earmark-code"></i> Download JSON Data
+                        </a>
+                        
+                        <p class="text-muted mt-2">
+                            <small>The PDF contains the formatted training document with screenshots. 
+                            The JSON file contains the raw AI-generated data from both processing stages.</small>
+                        </p>
+                        {% else %}
+                        <p class="text-muted mt-2">
+                            <small>The PDF contains the formatted training document with screenshots.</small>
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-primary">Start Over</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

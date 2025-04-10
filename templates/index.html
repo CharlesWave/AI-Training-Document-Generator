@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Video - Training Document Generator{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Upload Training Video</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Upload a training video to generate a comprehensive training document with text and screenshots.</p>
+                
+                <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data" class="mt-4">
+                    <div class="mb-4">
+                        <label for="video" class="form-label">Select Video File:</label>
+                        <input class="form-control" type="file" id="video" name="video" accept="video/mp4,video/x-m4v,video/avi,video/mov,video/wmv,video/mkv">
+                        <div class="form-text">
+                            Supported formats: MP4, AVI, MOV, WMV, MKV (max 500MB)
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-cloud-arrow-up"></i> Upload & Process
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="alert alert-info mt-4">
+                    <h6><i class="bi bi-info-circle"></i> How it works</h6>
+                    <ol class="mb-0">
+                        <li>Upload your training video</li>
+                        <li>The AI analyzes the video to extract knowledge points</li>
+                        <li>Screenshots are captured at relevant timestamps</li>
+                        <li>A complete training document is generated with text and screenshots</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Show file name when selected
+    document.getElementById('video').addEventListener('change', function() {
+        const fileName = this.files[0]?.name || 'No file chosen';
+        const fileNameDisplay = document.createElement('div');
+        fileNameDisplay.className = 'mt-2 text-muted';
+        fileNameDisplay.textContent = `Selected file: ${fileName}`;
+        
+        // Remove previous display if exists
+        const previousDisplay = this.parentElement.querySelector('.text-muted');
+        if (previousDisplay) {
+            previousDisplay.remove();
+        }
+        
+        this.parentElement.appendChild(fileNameDisplay);
+    });
+</script>
+{% endblock %} 

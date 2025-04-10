@@ -1,0 +1,302 @@
+{% extends "base.html" %}
+
+{% block title %}Processing Video - Training Document Generator{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0" id="card-title">Processing Video</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="my-4">
+                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <h4 class="mt-3" id="message-heading">{{ message }}</h4>
+                    <p class="text-muted" id="wait-message">This might take a few minutes. Please wait...</p>
+                </div>
+                
+                <div class="progress mb-4">
+                    <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                </div>
+                
+                <div id="status-message" class="alert alert-info" role="alert">
+                    Initializing process...
+                </div>
+                
+                <div id="processing-stages" class="my-4">
+                    <div class="row text-center">
+                        <div class="col">
+                            <div class="stage active" id="stage-upload">
+                                <div class="stage-icon">
+                                    <i class="bi bi-upload circle-icon"></i>
+                                </div>
+                                <div class="stage-name">Upload</div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="stage" id="stage-analysis">
+                                <div class="stage-icon">
+                                    <i class="bi bi-robot circle-icon"></i>
+                                </div>
+                                <div class="stage-name">AI Analysis</div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="stage" id="stage-screenshots">
+                                <div class="stage-icon">
+                                    <i class="bi bi-camera circle-icon"></i>
+                                </div>
+                                <div class="stage-name">Screenshots</div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="stage" id="stage-document">
+                                <div class="stage-icon">
+                                    <i class="bi bi-file-earmark-text circle-icon"></i>
+                                </div>
+                                <div class="stage-name">Document</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="error-container" class="alert alert-danger d-none" role="alert">
+                    An error occurred
+                </div>
+                
+                <div class="mt-4">
+                    <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block head %}
+<style>
+    .circle-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: #e9ecef;
+        color: #6c757d;
+        font-size: 1.5rem;
+        margin: 0 auto;
+    }
+    
+    .stage.active .circle-icon {
+        background-color: #0d6efd;
+        color: white;
+    }
+    
+    .stage.completed .circle-icon {
+        background-color: #198754;
+        color: white;
+    }
+    
+    .stage-name {
+        margin-top: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .stage.active .stage-name {
+        font-weight: bold;
+        color: #0d6efd;
+    }
+    
+    .stage.completed .stage-name {
+        font-weight: bold;
+        color: #198754;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Initialize variables
+    let progress = 0;
+    let currentStage = 'upload';
+    
+    const progressBar = document.getElementById('progress-bar');
+    const statusMessage = document.getElementById('status-message');
+    const errorContainer = document.getElementById('error-container');
+    const cardTitle = document.getElementById('card-title');
+    const waitMessage = document.getElementById('wait-message');
+    const messageHeading = document.getElementById('message-heading');
+    
+    // Stage elements
+    const stageUpload = document.getElementById('stage-upload');
+    const stageAnalysis = document.getElementById('stage-analysis');
+    const stageScreenshots = document.getElementById('stage-screenshots');
+    const stageDocument = document.getElementById('stage-document');
+    
+    const jobId = "{{ job_id }}";
+    
+    // Function to mark a stage as completed
+    function completeStage(stageElement) {
+        stageElement.classList.remove('active');
+        stageElement.classList.add('completed');
+    }
+    
+    // Function to activate a stage
+    function activateStage(stageElement) {
+        stageElement.classList.add('active');
+    }
+    
+    // Function to update the stage visualization
+    function updateStage(stage) {
+        console.log(`Updating to stage: ${stage}`);
+        
+        // Complete the current stage
+        if (currentStage === 'upload') {
+            completeStage(stageUpload);
+        } else if (currentStage === 'analysis') {
+            completeStage(stageAnalysis);
+        } else if (currentStage === 'screenshots') {
+            completeStage(stageScreenshots);
+        } else if (currentStage === 'document') {
+            completeStage(stageDocument);
+        }
+        
+        // Update to new stage
+        currentStage = stage;
+        
+        if (stage === 'analysis') {
+            activateStage(stageAnalysis);
+            cardTitle.innerText = 'AI Analysis';
+            waitMessage.innerText = 'Gemini AI is analyzing your video content...';
+        } else if (stage === 'screenshots') {
+            activateStage(stageScreenshots);
+            cardTitle.innerText = 'Capturing Screenshots';
+            waitMessage.innerText = 'Extracting relevant screenshots from your video...';
+        } else if (stage === 'document') {
+            activateStage(stageDocument);
+            cardTitle.innerText = 'Generating Document';
+            waitMessage.innerText = 'Creating your final training document...';
+        }
+    }
+    
+    // Start the processing
+    function startProcessing() {
+        console.log('Starting processing...');
+        statusMessage.innerHTML = 'Starting video processing...';
+        
+        fetch(`/start_processing/${jobId}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Processing started:', data);
+                
+                if (data.status === 'error') {
+                    showError(data.message);
+                } else if (data.status === 'processing') {
+                    statusMessage.innerHTML = data.message;
+                    updateStage('analysis');
+                    progress = 25;
+                    updateProgressBar();
+                } else if (data.status === 'complete') {
+                    completeProcess(data);
+                }
+            })
+            .catch(error => {
+                console.error('Error starting processing:', error);
+                showError(`Error starting processing: ${error.message}`);
+            });
+    }
+    
+    // Check status periodically
+    function checkStatus() {
+        fetch(`/check_status/${jobId}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Status update:', data);
+                
+                if (data.status === 'complete') {
+                    completeProcess(data);
+                } else if (data.status === 'error') {
+                    showError(data.message);
+                } else if (data.status === 'retry') {
+                    startProcessing();
+                } else if (data.status === 'processing') {
+                    // Still processing
+                    statusMessage.innerHTML = data.message;
+                    
+                    // If message indicates different stage, update the stage
+                    if (data.message.includes('still being processed')) {
+                        updateStage('analysis');
+                        progress = 25;
+                    } else if (data.message.includes('Extracting screenshots')) {
+                        updateStage('screenshots');
+                        progress = 50;
+                    } else if (data.message.includes('Generating document')) {
+                        updateStage('document');
+                        progress = 75;
+                    }
+                    
+                    updateProgressBar();
+                }
+            })
+            .catch(error => {
+                console.error('Error checking status:', error);
+                // Don't show error on status check failures, just log it
+            });
+    }
+    
+    // Show error message
+    function showError(message) {
+        errorContainer.classList.remove('d-none');
+        errorContainer.innerHTML = message;
+        statusMessage.classList.add('d-none');
+    }
+    
+    // Complete process
+    function completeProcess(data) {
+        // Complete all stages
+        completeStage(stageUpload);
+        completeStage(stageAnalysis);
+        completeStage(stageScreenshots);
+        completeStage(stageDocument);
+        
+        // Update UI
+        progress = 100;
+        updateProgressBar();
+        statusMessage.innerHTML = 'Processing complete! Redirecting...';
+        
+        // Redirect to results page
+        if (data.redirect) {
+            setTimeout(() => {
+                window.location.href = data.redirect;
+            }, 1500);
+        }
+    }
+    
+    // Update progress bar
+    function updateProgressBar() {
+        progressBar.style.width = `${progress}%`;
+        progressBar.setAttribute('aria-valuenow', progress);
+    }
+    
+    // Initialize with some progress
+    setTimeout(() => {
+        progress = 10;
+        updateProgressBar();
+    }, 500);
+    
+    // Start the processing
+    window.addEventListener('load', () => {
+        // Start processing after a short delay
+        setTimeout(() => {
+            startProcessing();
+            
+            // Set up status checking interval
+            setInterval(checkStatus, 3000);
+        }, 1000);
+    });
+</script>
+{% endblock %} 

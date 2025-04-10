@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Result - Training Document Generator{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Processing Complete</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="my-4">
+                    <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+                    <h3 class="mt-3">Your training document is ready!</h3>
+                    <p class="text-muted">The document includes knowledge points extracted from your video along with relevant screenshots.</p>
+                </div>
+                
+                <div class="my-5">
+                    <a href="{{ url_for('download_document', job_id=job_id) }}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-download"></i> Download Training Document
+                    </a>
+                    <p class="text-muted mt-2 small">{{ document_name }}</p>
+                </div>
+                
+                <div class="alert alert-light border mt-4">
+                    <h6>What's included in your document:</h6>
+                    <ul class="text-start">
+                        <li>Summary of the training video content</li>
+                        <li>Key knowledge points organized in a logical order</li>
+                        <li>Relevant screenshots from the video</li>
+                        <li>Captions for each screenshot (if available)</li>
+                    </ul>
+                </div>
+                
+                <div class="mt-4">
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-repeat"></i> Process Another Video
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

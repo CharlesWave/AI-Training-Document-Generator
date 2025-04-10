@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Error - Training Document Generator{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0">Error</h5>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Something went wrong</h5>
+                <p class="card-text font-weight-bold">{{ error }}</p>
+                
+                <div class="alert alert-warning">
+                    <p><strong>Possible causes:</strong></p>
+                    <ul>
+                        <li>Video format is not supported</li>
+                        <li>Video is too large or too long</li>
+                        <li>Issue with Gemini API processing</li>
+                        <li>Problem generating the PDF document</li>
+                    </ul>
+                </div>
+                
+                {% if "timed out" in error|lower %}
+                <div class="alert alert-info">
+                    <h5 class="alert-heading">Timeout Error Detected</h5>
+                    <p>It looks like the operation timed out. This often happens when:</p>
+                    <ul>
+                        <li>The video is too long (try with a shorter video)</li>
+                        <li>There are too many screenshots to process</li>
+                        <li>The generated PDF would be too large</li>
+                    </ul>
+                    <hr>
+                    <p class="mb-0">Try again with a shorter video or reduce the number of timestamps in your prompt.</p>
+                </div>
+                {% endif %}
+                
+                {% if "json" in error|lower %}
+                <div class="alert alert-info">
+                    <h5 class="alert-heading">JSON Parsing Error Detected</h5>
+                    <p>The application received an invalid response from the AI service. This might be due to:</p>
+                    <ul>
+                        <li>The AI service returned incomplete or malformed data</li>
+                        <li>The video might be too complex for the AI to analyze properly</li>
+                        <li>There may be network or service issues</li>
+                    </ul>
+                    <hr>
+                    <p class="mb-0">Try again with a simpler or shorter video.</p>
+                </div>
+                {% endif %}
+                
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('index') }}" class="btn btn-primary">Try Again</a>
+                    <button class="btn btn-outline-secondary" onclick="window.history.back();">Go Back</button>
+                </div>
+                
+                <!-- Debugging Information (collapsible) -->
+                <div class="mt-4">
+                    <p>
+                        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#debugInfo" aria-expanded="false" aria-controls="debugInfo">
+                            Show Technical Details
+                        </button>
+                    </p>
+                    <div class="collapse" id="debugInfo">
+                        <div class="card card-body bg-light">
+                            {% if stack_trace %}
+                            <h6>Stack Trace:</h6>
+                            <pre class="text-muted" style="max-height: 300px; overflow-y: auto; font-size: 0.8rem;">{{ stack_trace }}</pre>
+                            {% endif %}
+                            
+                            {% if raw_response %}
+                            <h6 class="mt-3">Raw Response (truncated):</h6>
+                            <pre class="text-muted" style="max-height: 300px; overflow-y: auto; font-size: 0.8rem;">{{ raw_response }}</pre>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
